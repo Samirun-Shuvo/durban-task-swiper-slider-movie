@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import "./App.css"
 
 
@@ -61,8 +61,35 @@ function App() {
     },
   ])
 
+  const [showImages, setShowImages] = useState([])
 
+  useEffect(() => {
+    let stateImages = []
+    const interval = setInterval(() => {
+      if (
+        stateImages[stateImages.length - 1]?.id ===
+        movies[movies.length - 1]?.id
+      ) {
+        let newImages = [...stateImages.slice(1, 3), movies[0]]
+        stateImages = newImages
+        setShowImages([...newImages])
+      } else {
+        if (stateImages.length == 0) {
+          stateImages = [...movies.slice(0, 3)]
+          setShowImages([...movies.slice(0, 3)])
+        } else {
+          const index = stateImages[stateImages.length - 1]?.id
+          let newImages = [...stateImages.slice(1, 3), movies[index]]
+          stateImages = newImages
+          setShowImages([...newImages])
+        }
+      }
+    }, 3000)
 
+    return () => {
+      clearInterval(interval)
+    }
+  }, [movies])
 
   return (
     <section className="bg-black bg-opacity-90 min-h-screen flex justify-center items-center p-8">
@@ -72,12 +99,18 @@ function App() {
           className="flex items-center justify-center w-full overflow-hidden"
           id="slider_container"
         >
-          {movies.map((movie, index) => {
+          {showImages.map((movie, index) => {
             return (
               <img
                 key={index}
                 src={movie.image}
-                className={`card rounded-[10px]`}
+                className={`card rounded-[10px] overflow-hidden ${
+                  index === 0 || index === 2
+                    ? "h-[330px] w-[250px] relative z-30"
+                    : "w-[350px] h-[450px] z-50"
+                } ${index === 0 ? "relative right-[-30px]" : ""} ${
+                  index === 2 ? "relative right-[30px]" : ""
+                }`}
               />
             )
           })}
